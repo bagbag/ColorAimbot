@@ -4,5 +4,9 @@
         xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         Title="Color Aimbot" Height="350" Width="525">
     <Grid>
+        <controls:MetroAnimatedSingleRowTabControl>
+            <controls:MetroTabItem Header="Aimbot Settings"></controls:MetroTabItem>
+            <controls:MetroTabItem Header="Targets"></controls:MetroTabItem>
+        </controls:MetroAnimatedSingleRowTabControl>
     </Grid>
 </controls:MetroWindow>

@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using AForge.Imaging;
 
-namespace aforgefiltertest
+namespace ColorAimbot.Filter
 {
     public class HSL
     {
@@ -52,9 +48,9 @@ namespace aforgefiltertest
         /// <param name="hue">Hue component.</param><param name="saturation">Saturation component.</param><param name="luminance">Luminance component.</param>
         public HSL(double hue, double saturation, double luminance)
         {
-            this.Hue = hue;
-            this.Saturation = saturation;
-            this.Luminance = luminance;
+            Hue = hue;
+            Saturation = saturation;
+            Luminance = luminance;
         }
 
         /// <summary>
@@ -73,10 +69,10 @@ namespace aforgefiltertest
         public static void FromRGB(RGB rgb, HSL hsl)
         {
             double val1 = rgb.Red / (double)byte.MaxValue;
-            double val2_1 = rgb.Green / (double)byte.MaxValue;
-            double val2_2 = rgb.Blue / (double)byte.MaxValue;
-            double num1 = Math.Min(Math.Min(val1, val2_1), val2_2);
-            double num2 = Math.Max(Math.Max(val1, val2_1), val2_2);
+            double val2 = rgb.Green / (double)byte.MaxValue;
+            double val3 = rgb.Blue / (double)byte.MaxValue;
+            double num1 = Math.Min(Math.Min(val1, val2), val3);
+            double num2 = Math.Max(Math.Max(val1, val2), val3);
             double num3 = num2 - num1;
             hsl.Luminance = (num2 + num1) / 2.0;
             if (num3 == 0.0)
@@ -87,7 +83,7 @@ namespace aforgefiltertest
             else
             {
                 hsl.Saturation = hsl.Luminance <= 0.5 ? num3 / (num2 + num1) : num3 / (2f - num2 - num1);
-                double num4 = val1 != num2 ? (val2_1 != num2 ? 0.666666686534882 + (val1 - val2_1) / 6.0 / num3 : 0.333333343267441 + (val2_2 - val1) / 6.0 / num3) : (val2_1 - val2_2) / 6.0 / num3;
+                double num4 = val1 != num2 ? (val2 != num2 ? 0.666666686534882 + (val1 - val2) / 6.0 / num3 : 0.333333343267441 + (val3 - val1) / 6.0 / num3) : (val2 - val3) / 6.0 / num3;
                 if (num4 < 0.0)
                     ++num4;
                 if (num4 > 1.0)
@@ -107,7 +103,7 @@ namespace aforgefiltertest
         public static HSL FromRGB(RGB rgb)
         {
             HSL hsl = new HSL();
-            HSL.FromRGB(rgb, hsl);
+            FromRGB(rgb, hsl);
             return hsl;
         }
 
@@ -127,9 +123,9 @@ namespace aforgefiltertest
                 double vH = hsl.Hue;
                 double v2 = hsl.Luminance < 0.5 ? hsl.Luminance * (1f + hsl.Saturation) : hsl.Luminance + hsl.Saturation - hsl.Luminance * hsl.Saturation;
                 double v1 = 2f * hsl.Luminance - v2;
-                rgb.Red = (byte)(byte.MaxValue * HSL.Hue_2_RGB(v1, v2, vH + 0.3333333f));
-                rgb.Green = (byte)(byte.MaxValue * HSL.Hue_2_RGB(v1, v2, vH));
-                rgb.Blue = (byte)(byte.MaxValue * HSL.Hue_2_RGB(v1, v2, vH - 0.3333333f));
+                rgb.Red = (byte)(byte.MaxValue * Hue2RGB(v1, v2, vH + 0.3333333f));
+                rgb.Green = (byte)(byte.MaxValue * Hue2RGB(v1, v2, vH));
+                rgb.Blue = (byte)(byte.MaxValue * Hue2RGB(v1, v2, vH - 0.3333333f));
             }
             rgb.Alpha = byte.MaxValue;
         }
@@ -144,12 +140,12 @@ namespace aforgefiltertest
         /// </returns>
         public RGB ToRGB()
         {
-            RGB rgb = new RGB();
-            HSL.ToRGB(this, rgb);
+            var rgb = new RGB();
+            ToRGB(this, rgb);
             return rgb;
         }
 
-        private static double Hue_2_RGB(double v1, double v2, double vH)
+        private static double Hue2RGB(double v1, double v2, double vH)
         {
             if (vH < 0.0)
                 ++vH;
@@ -161,8 +157,8 @@ namespace aforgefiltertest
                 return v2;
             if (3.0 * vH < 2.0)
                 return v1 + (v2 - v1) * (0.666666686534882 - vH) * 6.0;
-            else
-                return v1;
+
+            return v1;
         }
     }
 }
