@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.Remoting.Channels;
 using System.Threading;
+using System.Windows.Input;
 using ColorAimbot.Helper;
+using Mouse = ColorAimbot.Helper.Mouse;
 using Timer = System.Timers.Timer;
 
 namespace ColorAimbot.Worker
@@ -57,54 +61,51 @@ namespace ColorAimbot.Worker
             if (targets.Count == 0)
                 return;
 
-            var mouse = settings.TargetWindow.CursorPosition;
-
-            Target.Target target = new Target.Target();
-            double shortetDistance = float.MaxValue;
-            int highestPriority = 0;
-
-            Vector delta = new Vector();
+            var highestPriority = 0;
 
             foreach (var t in targets)
             {
                 if (t.targetDescriptor.priority > highestPriority)
-                    target = t;
-                else
-                    continue;
+                    highestPriority = t.targetDescriptor.priority;
+            }
 
-                Vector targetPos = Vector.Multiply(new Vector(target.targetBlob.CenterOfGravity.X, target.targetBlob.CenterOfGravity.Y), 1.0 / settings.ScaleFactor);
+            var highestPriorityTargets = targets.Where(t => t.targetDescriptor.priority == highestPriority).ToList();
 
-                Vector d = Vector.Subtract(targetPos, mouse);
 
-                double length = d.Length;
 
-                if (length < shortetDistance)
+            var mouse = settings.TargetWindow.CursorPosition;
+            var shortestDistance = double.MaxValue;
+            var mouseDelta = new Vector();
+
+            foreach (var t in highestPriorityTargets)
+            {
+                var targetPos = Vector.Multiply(new Vector(t.targetBlob.CenterOfGravity.X, t.targetBlob.Rectangle.Y+t.targetBlob.Rectangle.Height*0.05), 1.0 / settings.ScaleFactor);
+                var targetDelta = Vector.Subtract(targetPos, mouse);
+
+                if (targetDelta.Length < shortestDistance)
                 {
-                    target = t;
-                    delta = d;
-                    shortetDistance = length;
+                    mouseDelta = targetDelta;
+                    shortestDistance = targetDelta.Length;
                 }
             }
 
-            //double formula = (1 - Math.Pow(Math.E, (-(delta.Length / 350) * 2))) * 100;
-            double formula = Math.Pow(delta.Length, 2) * 200;
+            var formula = (1 - Math.Pow(1.4, -(mouseDelta.Length / 35))) * 2800;
 
-            if (formula < 0.5)
-                return;
+            var origDelta = mouseDelta;
+            mouseDelta.Normalize();
 
-            Vector origDelta = delta;
-            delta.Normalize();
-
-            Vector movement;
-
-            movement = Vector.Multiply(delta, formula / StaticInstance.FPS * 50.0);
+            var movement = Vector.Multiply(mouseDelta, formula / StaticInstance.FPS);
 
             if (double.IsNaN(movement.X) || double.IsNaN(movement.Y))
                 return;
 
-            if (movement.Length > origDelta.Length)
-                movement = origDelta;
+            //if (movement.Length > origDelta.Length)
+             //   movement = origDelta;
 
+            if (movement.Length < 1)
+                return;
+            
+            Console.WriteLine(movement.Length);
             Mouse.Move(movement);
         }
     }

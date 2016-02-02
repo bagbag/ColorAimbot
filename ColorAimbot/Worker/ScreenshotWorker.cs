@@ -17,6 +17,9 @@ namespace ColorAimbot.Worker
 
         public override void process()
         {
+            //outQueue.Enqueue(new Bitmap(@"G:\asd.png"));
+            //return;
+
             if (outQueue.Count != 0)
             {
                 Thread.Sleep(1);
@@ -29,7 +32,7 @@ namespace ColorAimbot.Worker
                 return;
             }
 
-            Bitmap screenshot = ScreenCapture.Screenshot(settings.TargetWindow.WindowRectangle);
+            var screenshot = ScreenCapture.Screenshot(settings.TargetWindow.WindowRectangle);
 
             if (screenshot == null)
             {

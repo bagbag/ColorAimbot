@@ -39,8 +39,8 @@ namespace ColorAimbot.Helper
             if (rectangle.Width == 0 || rectangle.Height == 0)
                 return null;
 
-            Bitmap screenshot = new Bitmap(rectangle.Width, rectangle.Height);
-            Graphics g = Graphics.FromImage(screenshot);
+            var screenshot = new Bitmap(rectangle.Width, rectangle.Height);
+            var g = Graphics.FromImage(screenshot);
             g.CopyFromScreen(rectangle.Left, rectangle.Top, 0, 0, screenshot.Size);
             g.Dispose();
 

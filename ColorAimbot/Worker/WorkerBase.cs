@@ -5,46 +5,47 @@ namespace ColorAimbot.Worker
 {
     public class WorkerBase
     {
-        private Thread processThread;
-        private volatile bool doProcess;
+        private Thread _processThread;
+        private volatile bool _doProcess;
 
-        public int counter = 0;
+        private int _counter = 0;
 
         public virtual bool Start()
         {
-            if (doProcess) return false;
+            if (_doProcess) return false;
 
-            processThread = new Thread(worker) {IsBackground = true};
+            _processThread = new Thread(worker) {IsBackground = true};
 
-            processThread.Start();
-            doProcess = true;
+            _processThread.Start();
+            _doProcess = true;
 
             return true;
         }
 
         public virtual bool Stop()
         {
-            if (!doProcess) return false;
+            if (!_doProcess) return false;
 
-            doProcess = false;
+            _doProcess = false;
             return true;
         }
 
-        public int operationsPerSecond { get; private set; }
+        public int OperationsPerSecond { get; private set; }
 
         private Stopwatch sw = Stopwatch.StartNew();
+
         private void worker()
         {
             while (true)
             {
                 if (sw.Elapsed.TotalSeconds >= 1)
                 {
-                    operationsPerSecond = counter;
-                    counter = 0;
+                    OperationsPerSecond = _counter;
+                    _counter = 0;
                     sw.Restart();
                 }
                 process();
-                counter++;
+                _counter++;
             }
         }
 

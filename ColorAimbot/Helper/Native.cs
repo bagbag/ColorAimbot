@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Windows;
+using System.Windows.Interop;
+using System.Windows.Media.Imaging;
 
 namespace ColorAimbot.Helper
 {
@@ -46,6 +50,25 @@ namespace ColorAimbot.Helper
         [DllImport("User32.dll")]
         public static extern bool SetCursorPos(int x, int Y);
 
+        [DllImport("gdi32")]
+        private static extern int DeleteObject(IntPtr o);
+
+        public static BitmapSource BitmapToBitmapSource(Bitmap source)
+        {
+            var ip = source.GetHbitmap();
+            BitmapSource bs;
+            try
+            {
+                bs = Imaging.CreateBitmapSourceFromHBitmap(ip, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+            }
+            finally
+            {
+                DeleteObject(ip);
+            }
+
+            return bs;
+        }
+
         public static Vector GetCursorPos()
         {
             POINT point;
@@ -56,7 +79,7 @@ namespace ColorAimbot.Helper
 
         public static string GetWindowText(IntPtr hWnd)
         {
-            int size = GetWindowTextLength(hWnd);
+            var size = GetWindowTextLength(hWnd);
 
             if (size++ > 0)
             {
@@ -73,7 +96,7 @@ namespace ColorAimbot.Helper
             if (exactMatch)
                 return FindWindow(IntPtr.Zero, name);
 
-            IntPtr handle = IntPtr.Zero;
+            var handle = IntPtr.Zero;
 
             EnumWindows(delegate(IntPtr wnd, IntPtr param)
                         {

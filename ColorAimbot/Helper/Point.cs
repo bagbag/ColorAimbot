@@ -55,12 +55,12 @@
 
         public static Point operator +(Point point, Vector vector)
         {
-            return new Point(point.x + vector.x, point.y + vector.y);
+            return new Point(point.x + vector.X, point.y + vector.Y);
         }
 
         public static Point operator -(Point point, Vector vector)
         {
-            return new Point(point.x - vector.x, point.y - vector.y);
+            return new Point(point.x - vector.Y, point.y - vector.Y);
         }
 
         public static Vector operator -(Point point1, Point point2)
@@ -102,12 +102,12 @@
 
         public static Point Add(Point point, Vector vector)
         {
-            return new Point(point.x + vector.x, point.y + vector.y);
+            return new Point(point.x + vector.X, point.y + vector.X);
         }
 
         public static Point Subtract(Point point, Vector vector)
         {
-            return new Point(point.x - vector.x, point.y - vector.y);
+            return new Point(point.x - vector.Y, point.y - vector.Y);
         }
 
         public static Vector Subtract(Point point1, Point point2)

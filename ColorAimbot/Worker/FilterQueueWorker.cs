@@ -18,7 +18,6 @@ namespace ColorAimbot.Worker
         public FilterQueueWorker(QueueWorkerBase<KeyValuePair<KeyValuePair<Bitmap, BitmapData>, TargetDescriptor>[]> outQueue,ref Settings settings)
         {
             this.outQueue = outQueue;
-
             this.settings = settings;
         }
 
@@ -30,13 +29,13 @@ namespace ColorAimbot.Worker
                 return;
             }
 
-            BitmapData bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+            var bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
 
-            KeyValuePair<KeyValuePair<Bitmap, BitmapData>, TargetDescriptor>[] filteredBitmaps = new KeyValuePair<KeyValuePair<Bitmap, BitmapData>, TargetDescriptor>[settings.TargetDescriptors.Count];
+            var filteredBitmaps = new KeyValuePair<KeyValuePair<Bitmap, BitmapData>, TargetDescriptor>[settings.TargetDescriptors.Count];
 
-            object lockobj = new object();
+            var lockobj = new object();
 
-            int i = 0;
+            var i = 0;
             Parallel.ForEach(settings.TargetDescriptors, targetDescriptor =>
                                                  {
                                                      var result = new KeyValuePair<KeyValuePair<Bitmap, BitmapData>, TargetDescriptor>(ColorFilter.FilterImage(ref bitmapData, targetDescriptor.filter, targetDescriptor.priority), targetDescriptor);
@@ -50,6 +49,7 @@ namespace ColorAimbot.Worker
                                                  b.UnlockBits(bd);
                                                  b.Dispose();
                                              }, bitmap, bitmapData);
+
 
             outQueue.Enqueue(filteredBitmaps);
         }

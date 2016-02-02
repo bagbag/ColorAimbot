@@ -2,6 +2,8 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Threading.Tasks;
+using AForge.Imaging;
+using ColorAimbot.Helper;
 
 namespace ColorAimbot.Filter
 {
@@ -9,22 +11,22 @@ namespace ColorAimbot.Filter
     {
         public static unsafe KeyValuePair<Bitmap,BitmapData> FilterImage(ref BitmapData bitmapData, IFilter filter, byte setValue)
         {
-            Bitmap filteredBitmap = new Bitmap(bitmapData.Width, bitmapData.Height, PixelFormat.Format8bppIndexed);
-            BitmapData filteredBitmapData = filteredBitmap.LockBits(new Rectangle(0, 0, filteredBitmap.Width, filteredBitmap.Height), ImageLockMode.WriteOnly, PixelFormat.Format8bppIndexed);
+            var filteredBitmap = new Bitmap(bitmapData.Width, bitmapData.Height, PixelFormat.Format8bppIndexed);
+            var filteredBitmapData = filteredBitmap.LockBits(new Rectangle(0, 0, filteredBitmap.Width, filteredBitmap.Height), ImageLockMode.WriteOnly, PixelFormat.Format8bppIndexed);
 
-            long startaddr = bitmapData.Scan0.ToInt64();
-            int rowoffset = bitmapData.Stride;
-            int rows = bitmapData.Height;
+            var startaddr = bitmapData.Scan0.ToInt64();
+            var rowoffset = bitmapData.Stride;
+            var rows = bitmapData.Height;
 
-            long filteredstartaddr = filteredBitmapData.Scan0.ToInt64();
-            int filteredrowoffset = filteredBitmapData.Stride;
+            var filteredstartaddr = filteredBitmapData.Scan0.ToInt64();
+            var filteredrowoffset = filteredBitmapData.Stride;
 
             Parallel.For((long) 0, rows, row =>
                                          {
-                                             byte* dataptr = (byte*) (startaddr + rowoffset * row);
-                                             byte* rowendptr = dataptr + rowoffset;
+                                             var dataptr = (byte*) (startaddr + rowoffset * row);
+                                             var rowendptr = dataptr + rowoffset;
 
-                                             byte* filtereddataptr = (byte*) (filteredstartaddr + filteredrowoffset * row);
+                                             var filtereddataptr = (byte*) (filteredstartaddr + filteredrowoffset * row);
 
                                              while (dataptr < rowendptr)
                                              {
@@ -38,7 +40,7 @@ namespace ColorAimbot.Filter
                                                  filtereddataptr++;
                                              }
                                          });
-
+            
             return new KeyValuePair<Bitmap, BitmapData>(filteredBitmap, filteredBitmapData);
         }
     }

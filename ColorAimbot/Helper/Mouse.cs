@@ -1,4 +1,10 @@
-﻿namespace ColorAimbot.Helper
+﻿using System;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Windows.Input;
+using WindowsInput;
+
+namespace ColorAimbot.Helper
 {
     static class Mouse
     {
@@ -11,13 +17,14 @@
             set
             {
                 User32.SetCursorPos((int)value.X, (int)value.Y);
-                
             }
         }
 
         public static void Move(Vector offset)
         {
-            Position = Vector.Add(Position, offset);
+            //Position = Vector.Add(Position, offset);
+
+            new InputSimulator().Mouse.MoveMouseBy((int)offset.X, (int)offset.Y);
         }
     }
 }

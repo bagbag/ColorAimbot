@@ -7,42 +7,42 @@ namespace ColorAimbot
 {
     internal class Aimbot
     {
-        private readonly Settings settings;
-        public Settings Settings { get { return settings; } }
+        private readonly Settings _settings;
+        public Settings Settings { get { return _settings; } }
 
-        private readonly AimingQueueWorker aimingQueueWorker;
-        private readonly TargetsFinderQueueWorker targetsFinderQueueWorker;
-        private readonly FilterQueueWorker filterQueueWorker;
-        private readonly ResizeQueueWorker resizeQueueWorker;
-        private readonly ScreenshotWorker screenshotWorker;
+        private readonly AimingQueueWorker _aimingQueueWorker;
+        private readonly TargetsFinderQueueWorker _targetsFinderQueueWorker;
+        private readonly FilterQueueWorker _filterQueueWorker;
+        private readonly ResizeQueueWorker _resizeQueueWorker;
+        private readonly ScreenshotWorker _screenshotWorker;
 
         public Aimbot(string settingsPath = @"ColorAimbot Settings.xml")
         {
-            settings = new Settings(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), settingsPath));
+            _settings = new Settings(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), settingsPath));
 
-            aimingQueueWorker = new AimingQueueWorker(ref settings);
-            targetsFinderQueueWorker = new TargetsFinderQueueWorker(aimingQueueWorker, ref settings);
-            filterQueueWorker = new FilterQueueWorker(targetsFinderQueueWorker, ref settings);
-            resizeQueueWorker = new ResizeQueueWorker(filterQueueWorker, ref settings);
-            screenshotWorker = new ScreenshotWorker(resizeQueueWorker, ref settings);
+            _aimingQueueWorker = new AimingQueueWorker(ref _settings);
+            _targetsFinderQueueWorker = new TargetsFinderQueueWorker(_aimingQueueWorker, ref _settings);
+            _filterQueueWorker = new FilterQueueWorker(_targetsFinderQueueWorker, ref _settings);
+            _resizeQueueWorker = new ResizeQueueWorker(_filterQueueWorker, ref _settings);
+            _screenshotWorker = new ScreenshotWorker(_resizeQueueWorker, ref _settings);
         }
 
         public void Start()
         {
-            screenshotWorker.Start();
-            resizeQueueWorker.Start();
-            filterQueueWorker.Start();
-            targetsFinderQueueWorker.Start();
-            aimingQueueWorker.Start();
+            _screenshotWorker.Start();
+            _resizeQueueWorker.Start();
+            _filterQueueWorker.Start();
+            _targetsFinderQueueWorker.Start();
+            _aimingQueueWorker.Start();
         }
 
         public void Stop()
         {
-            screenshotWorker.Stop();
-            resizeQueueWorker.Stop();
-            filterQueueWorker.Stop();
-            targetsFinderQueueWorker.Stop();
-            aimingQueueWorker.Stop();
+            _screenshotWorker.Stop();
+            _resizeQueueWorker.Stop();
+            _filterQueueWorker.Stop();
+            _targetsFinderQueueWorker.Stop();
+            _aimingQueueWorker.Stop();
         }
     }
 }

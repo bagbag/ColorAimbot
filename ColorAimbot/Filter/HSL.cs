@@ -68,12 +68,12 @@ namespace ColorAimbot.Filter
         /// </remarks>
         public static void FromRGB(RGB rgb, HSL hsl)
         {
-            double val1 = rgb.Red / (double)byte.MaxValue;
-            double val2 = rgb.Green / (double)byte.MaxValue;
-            double val3 = rgb.Blue / (double)byte.MaxValue;
-            double num1 = Math.Min(Math.Min(val1, val2), val3);
-            double num2 = Math.Max(Math.Max(val1, val2), val3);
-            double num3 = num2 - num1;
+            var val1 = rgb.Red / (double)byte.MaxValue;
+            var val2 = rgb.Green / (double)byte.MaxValue;
+            var val3 = rgb.Blue / (double)byte.MaxValue;
+            var num1 = Math.Min(Math.Min(val1, val2), val3);
+            var num2 = Math.Max(Math.Max(val1, val2), val3);
+            var num3 = num2 - num1;
             hsl.Luminance = (num2 + num1) / 2.0;
             if (num3 == 0.0)
             {
@@ -83,7 +83,7 @@ namespace ColorAimbot.Filter
             else
             {
                 hsl.Saturation = hsl.Luminance <= 0.5 ? num3 / (num2 + num1) : num3 / (2f - num2 - num1);
-                double num4 = val1 != num2 ? (val2 != num2 ? 0.666666686534882 + (val1 - val2) / 6.0 / num3 : 0.333333343267441 + (val3 - val1) / 6.0 / num3) : (val2 - val3) / 6.0 / num3;
+                var num4 = val1 != num2 ? (val2 != num2 ? 0.666666686534882 + (val1 - val2) / 6.0 / num3 : 0.333333343267441 + (val3 - val1) / 6.0 / num3) : (val2 - val3) / 6.0 / num3;
                 if (num4 < 0.0)
                     ++num4;
                 if (num4 > 1.0)
@@ -102,7 +102,7 @@ namespace ColorAimbot.Filter
         /// </returns>
         public static HSL FromRGB(RGB rgb)
         {
-            HSL hsl = new HSL();
+            var hsl = new HSL();
             FromRGB(rgb, hsl);
             return hsl;
         }
@@ -120,9 +120,9 @@ namespace ColorAimbot.Filter
             }
             else
             {
-                double vH = hsl.Hue;
-                double v2 = hsl.Luminance < 0.5 ? hsl.Luminance * (1f + hsl.Saturation) : hsl.Luminance + hsl.Saturation - hsl.Luminance * hsl.Saturation;
-                double v1 = 2f * hsl.Luminance - v2;
+                var vH = hsl.Hue;
+                var v2 = hsl.Luminance < 0.5 ? hsl.Luminance * (1f + hsl.Saturation) : hsl.Luminance + hsl.Saturation - hsl.Luminance * hsl.Saturation;
+                var v1 = 2f * hsl.Luminance - v2;
                 rgb.Red = (byte)(byte.MaxValue * Hue2RGB(v1, v2, vH + 0.3333333f));
                 rgb.Green = (byte)(byte.MaxValue * Hue2RGB(v1, v2, vH));
                 rgb.Blue = (byte)(byte.MaxValue * Hue2RGB(v1, v2, vH - 0.3333333f));

@@ -15,7 +15,7 @@ namespace ColorAimbot.Filter
 
         public bool FilterPixel(byte r, byte g, byte b)
         {
-            HSL pixel = HSL.FromRGB(new RGB(r, g, b));
+            var pixel = HSL.FromRGB(new RGB(r, g, b));
 
             if (pixel.Hue >= minHSL.Hue && pixel.Hue <= maxHSL.Hue &&
                 pixel.Saturation >= minHSL.Saturation && pixel.Saturation <= maxHSL.Saturation &&

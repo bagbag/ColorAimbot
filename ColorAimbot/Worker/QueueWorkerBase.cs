@@ -3,16 +3,16 @@ using System.Threading;
 
 namespace ColorAimbot.Worker
 {
-    public class QueueWorkerBase<inType> : WorkerBase
+    public class QueueWorkerBase<TInType> : WorkerBase
     {
-        private readonly ConcurrentQueue<inType> inQueue;
+        private readonly ConcurrentQueue<TInType> inQueue;
 
         public QueueWorkerBase()
         {
-            inQueue = new ConcurrentQueue<inType>();
+            inQueue = new ConcurrentQueue<TInType>();
         }
 
-        public void Enqueue(inType item)
+        public void Enqueue(TInType item)
         {
             inQueue.Enqueue(item);
         }
@@ -21,7 +21,7 @@ namespace ColorAimbot.Worker
 
         public override void process()
         {
-            inType item;
+            TInType item;
 
             if (!inQueue.TryDequeue(out item))
             {
@@ -32,7 +32,7 @@ namespace ColorAimbot.Worker
             processItem(item);
         }
 
-        public virtual void processItem(inType item)
+        public virtual void processItem(TInType item)
         {
             
         }

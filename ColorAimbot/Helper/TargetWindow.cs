@@ -40,7 +40,7 @@ namespace ColorAimbot.Helper
                 if (!foundWindow)
                     return new Vector(double.NaN, double.NaN);
 
-                Vector realPosition = User32.GetCursorPos();
+                var realPosition = User32.GetCursorPos();
 
                 return Vector.Subtract(realPosition, offset);
             }
@@ -154,7 +154,7 @@ namespace ColorAimbot.Helper
             if (!User32.GetClientRect(windowHandle, out clientRect))
                 return false;
 
-            POINT clientPoint = new POINT(0, 0);
+            var clientPoint = new POINT(0, 0);
             User32.ClientToScreen(windowHandle, ref clientPoint);
 
             var rectangle = new Rectangle(clientPoint.X, clientPoint.Y, clientRect.Right, clientRect.Bottom);

@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -12,19 +13,21 @@ namespace ColorAimbot.Worker
 {
     internal class TargetsFinderQueueWorker : QueueWorkerBase<KeyValuePair<KeyValuePair<Bitmap, BitmapData>, TargetDescriptor>[]>
     {
-        private readonly QueueWorkerBase<ConcurrentBag<Target.Target>> outQueue;
+        private readonly QueueWorkerBase<ConcurrentBag<Target.Target>> _outQueue;
+        private readonly Settings _settings;
 
-        private Settings settings;
+        private readonly object _lockObject = new object();
 
-        public TargetsFinderQueueWorker(QueueWorkerBase<ConcurrentBag<Target.Target>> outQueue,ref Settings settings)
+        public TargetsFinderQueueWorker(QueueWorkerBase<ConcurrentBag<Target.Target>> outQueue, ref Settings settings)
         {
-            this.outQueue = outQueue;
-            this.settings = settings;
+            _outQueue = outQueue;
+            _settings = settings;
         }
+
 
         public override void processItem(KeyValuePair<KeyValuePair<Bitmap, BitmapData>, TargetDescriptor>[] item)
         {
-            if (outQueue.Count != 0)
+            if (_outQueue.Count != 0)
             {
                 Thread.Sleep(1);
                 return;
@@ -32,34 +35,45 @@ namespace ColorAimbot.Worker
 
             var targetList = new ConcurrentBag<Target.Target>();
 
+            var totalTargets = 0;
+
             Parallel.ForEach(item, pair =>
-                                   {
-                                       BlobCounter targetCounter = new BlobCounter();
-                                       targetCounter.CoupledSizeFiltering = true;
-                                       targetCounter.BackgroundThreshold = Color.Black;
-                                       targetCounter.FilterBlobs = true;
-                                       targetCounter.MinWidth = (int)(settings.MinWidth * settings.ScaleFactor);
-                                       targetCounter.MinHeight = (int)(settings.MinHeight * settings.ScaleFactor);
-                                       targetCounter.ObjectsOrder = ObjectsOrder.None;
+            {
+                var targetCounter = new BlobCounter
+                {
+                    CoupledSizeFiltering = true,
+                    BackgroundThreshold = Color.Black,
+                    FilterBlobs = true,
+                    MinWidth = (int)(_settings.MinWidth * _settings.ScaleFactor),
+                    MinHeight = (int)(_settings.MinHeight * _settings.ScaleFactor),
+                    ObjectsOrder = ObjectsOrder.None
+                };
 
-                                       var image = pair.Key;
-                                       targetCounter.ProcessImage(image.Value);
+                var image = pair.Key;
+                targetCounter.ProcessImage(image.Value);
 
-                                       var targets = targetCounter.GetObjectsInformation();
+                var targets = targetCounter.GetObjectsInformation();
 
-                                       foreach (var target in targets)
-                                       {
-                                           targetList.Add(new Target.Target(pair.Value, target));
-                                       }
+                foreach (var target in targets)
+                {
+                    targetList.Add(new Target.Target(pair.Value, target));
+                }
 
-                                       StaticInstance.STP.QueueWorkItem(p =>
-                                                                        {
-                                                                            p.Key.UnlockBits(p.Value);
-                                                                            p.Key.Dispose();
-                                                                        }, pair.Key);
-                                   });
+                lock(_lockObject)
+                    totalTargets += targets.Length;
 
-            outQueue.Enqueue(targetList);
+                StaticInstance.STP.QueueWorkItem(p =>
+                {
+                    p.Key.UnlockBits(p.Value);
+                    p.Key.Dispose();
+                }, pair.Key);
+            });
+
+            StaticInstance._mainWindowViewModel.VisibleTargets = totalTargets;
+
+            Console.WriteLine(targetList.Count);
+
+            _outQueue.Enqueue(targetList);
         }
     }
 }
